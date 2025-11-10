@@ -18,10 +18,11 @@ class TOOLBOX:
         self.M = home_configuration
         self.q = degree_order
         self.L = link_order
+        self.FK_symbol = None
 
         # Compute screw axes on initialization
         self.define_screw_axis()
-
+    
     def define_screw_axis(self):
         """Compute 6x1 screw axes from ω and q_point."""
         new_screws = []
@@ -56,23 +57,24 @@ class TOOLBOX:
 class FORWARD_KINEMATIC(TOOLBOX):
     def __init__(self, toolbox: TOOLBOX):
         # Copy all TOOLBOX attributes to this class
-        self.__dict__.update(toolbox.__dict__) # just get all the dictionary inside the parent class to your class
+        self.toolbox = toolbox # just get all the dictionary inside the parent class to your class
 
     def Forward_kinematic_formula(self):
         """Compute symbolic forward kinematic transformation"""
         T = sp.eye(4)
-        for i in range(len(self.Screw)):
-            S = self.Screw[i]
-            q_i = self.q[i]
-            T = T @ sp.exp(self.twist_to_matrix(S) * q_i)
-        T = T @ self.M
+        for i in range(len(self.toolbox.Screw)):
+            S = self.toolbox.Screw[i]
+            q_i = self.toolbox.q[i]
+            T = T @ sp.exp(self.toolbox.twist_to_matrix(S) * q_i)
+        T = T @ self.toolbox.M
+        self.toolbox.FK_symbol = sp.simplify(T)
         return sp.simplify(T)
 
     def Forward_kinematic_result(self, joint_values, link_values):
         """Compute numeric forward kinematics"""
         T_sym = self.Forward_kinematic_formula()
-        sub_joint = {self.q[i]: joint_values[i] for i in range(len(self.q))}
-        sub_link = {self.L[i]: link_values[i] for i in range(len(self.L))}
+        sub_joint = {self.toolbox.q[i]: joint_values[i] for i in range(len(self.toolbox.q))}
+        sub_link = {self.toolbox.L[i]: link_values[i] for i in range(len(self.toolbox.L))}
         sub_dict = sub_joint | sub_link
         T_numeric = T_sym.evalf(subs=sub_dict, chop=True)
         return T_numeric
@@ -85,10 +87,19 @@ class FORWARD_KINEMATIC(TOOLBOX):
         y = -L1 * sp.cos(q1) - L2 * sp.cos(q1 + q2)
         return float(x.evalf()), float(y.evalf())
 
+    def print_the_formula(self):
+        sp.pretty_print(self.FK_symbol)
 
 # CHILD CLASS (IK)
     
 class INVERSE_KINEMATIC(TOOLBOX):
     def __init__(self, toolbox: TOOLBOX):
-        self.__dict__.update(toolbox.__dict__)
+        self.toolbox = toolbox
+    
+
+    
+
+    
+
+
 

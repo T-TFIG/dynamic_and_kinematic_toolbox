@@ -34,3 +34,6 @@ print(T_numeric[0:3, 3])
 # Compare with standard closed-form 2-DOF FK
 print("\nClosed-form FK result (x, y):")
 print(FK.standard_FK_2_dof_result((1.57, 1.57), (1, 1)))
+
+sp.pretty_print(TOOL.FK_symbol)
+# FK.print_the_formula()
