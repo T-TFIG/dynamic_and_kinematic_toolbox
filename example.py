@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sympy as sp
-from forward_kinematic import TOOLBOX, FORWARD_KINEMATIC
+from forward_kinematic import TOOLBOX, FORWARD_KINEMATIC, INVERSE_KINEMATIC
 
 # Define symbols
 L1, L2 = sp.symbols('L1 L2')
@@ -22,12 +22,15 @@ M = sp.Matrix([
     [0, 0, 0, 1]
 ])
 
+test_q_val = sp.Matrix([1.57, 1.57])
+
 # Initialize TOOLBOX and FORWARD KINEMATIC
 TOOL = TOOLBOX([s1, s2], [q1_point, q2_point], M, [q1, q2], [L1, L2])
 FK = FORWARD_KINEMATIC(TOOL)
+IK = INVERSE_KINEMATIC(TOOL)
 
 # Compute numeric forward kinematics
-T_numeric = FK.Forward_kinematic_result((1.57, 1.57), (1, 1))
+T_numeric = FK.Forward_kinematic_result(test_q_val, (1, 1))
 print("End-effector position (x, y, z):")
 print(T_numeric[0:3, 3])
 
@@ -35,5 +38,7 @@ print(T_numeric[0:3, 3])
 print("\nClosed-form FK result (x, y):")
 print(FK.standard_FK_2_dof_result((1.57, 1.57), (1, 1)))
 
-sp.pretty_print(TOOL.FK_symbol)
+
+# sp.pretty_print(TOOL.FK_symbol)
+IK.partial_differential()
 # FK.print_the_formula()

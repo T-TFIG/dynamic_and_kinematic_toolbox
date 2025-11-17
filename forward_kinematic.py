@@ -94,7 +94,66 @@ class FORWARD_KINEMATIC(TOOLBOX):
     
 class INVERSE_KINEMATIC(TOOLBOX):
     def __init__(self, toolbox: TOOLBOX):
+        self.FK = FORWARD_KINEMATIC(TOOLBOX)
         self.toolbox = toolbox
+        self.position_jacobian = sp.Matrix([0, 0, 0])
+        
+    def define_physical_property(self, link):
+        self.link = link
+
+    def Jacobian(self, q_vals):
+        q1_val, q2_val = q_vals
+
+        df_dq1 = sp.diff(self.toolbox.FK_symbol, self.toolbox.q[0])
+        df_dq2 = sp.diff(self.toolbox.FK_symbol, self.toolbox.q[1])
+
+        df_dq1_eval = df_dq1.subs({
+            self.toolbox.q[0]: q1_val,
+            self.toolbox.q[1]: q2_val
+        })
+
+        df_dq2_eval = df_dq2.subs({
+            self.toolbox.q[0]: q1_val,
+            self.toolbox.q[1]: q2_val
+        })
+
+        self.position_jacobian[0] = df_dq1_eval[3]
+        self.position_jacobian[1] = df_dq2_eval[7]
+
+    def standard_IK_2_dof_result(self, joint_value, link_value):
+        """Closed-form planar FK for 2-DOF"""
+        q1, q2 = joint_value
+        L1, L2 = link_value
+        x = L1 * sp.sin(q1) + L2 * sp.sin(q1 + q2)
+        y = -L1 * sp.cos(q1) - L2 * sp.cos(q1 + q2)
+        return float(x.evalf()), float(y.evalf())
+
+    def Inverse_kinematic_formula(self, q_old, task_target, tol=1e-6, iter=1000):
+        converge = False
+        iteration = 0
+        while iteration < iter:
+
+            error = task_target - self.FK.Forward_kinematic_result(q_old, self.link)
+            if error <= tol:
+                converge = True
+            else:
+                q_new = q_old + (error)/(self.Jacobian(q_old))
+            q_old = q_new
+
+            iteration += 1
+        
+        if converge:
+            print("the answer of this question is ", q_old)
+            return q_old
+        else:
+            print("cannot find the answer try new initial value")
+            return q_old
+        
+
+
+
+        
+
     
 
     
