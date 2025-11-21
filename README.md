@@ -96,3 +96,211 @@ $H^0_{End-effector} = T^0_1 * T^1_2 * T^2_{End-effector}$
 > - All rotations occur in the XY-plane about the z-axis.
 
 ---
+
+## Screw Theory
+
+Now let's move on to **Screw Theory**.
+
+In screw theory, each **revolute joint** is described by a **screw axis** (a 6×1 twist) that encodes the joint's instantaneous motion.
+
+For every revolute joint we define:
+
+- **Angular velocity axis** $\omega$ — a unit vector pointing along the axis of rotation.
+- **Linear velocity component** $v$ — the instantaneous translational part. For a revolute joint:
+  $$
+    v = -\omega \times q
+  $$
+  where $q$ is any point on the joint's rotation axis (expressed in the same frame as $\omega$).
+
+### Angular velocity axis
+
+The angular velocity axis is the direction of rotation. Example — a joint rotating about the **z-axis**:
+
+$$
+\omega =
+\begin{bmatrix}
+0 \\
+0 \\
+1
+\end{bmatrix}
+$$
+
+### Point on a Joint Axis
+
+Before constructing the full screw axis, we need to identify a **point on the joint’s axis of rotation**.
+
+For a revolute joint, the axis is defined by:
+
+- a **direction vector** (the angular velocity axis)  
+- **any point** that lies on the line of that axis  
+
+We denote this point as **q**, expressed in the same coordinate frame as the joint axis.
+
+For example, if a joint rotates about the **z-axis** and passes through the origin:
+
+$$
+q = 
+\begin{bmatrix}
+0 \\
+0 \\
+0
+\end{bmatrix}
+$$
+
+But if the joint is offset in space — for example at position $(x_0, y_0, z_0)$ — then the point on the axis is:
+
+$$
+q =
+\begin{bmatrix}
+x_0 \\
+y_0 \\
+z_0
+\end{bmatrix}
+$$
+
+Why do we need $(q\)$?  
+Because for a revolute joint, the **linear component** of the screw axis is computed using:
+
+$$
+v = -\omega \times q
+$$
+
+This ensures the twist correctly represents rotation **about** that physical axis in space.
+
+### Linear Velocity Component of a Revolute Joint
+
+Now that we have:
+
+- the **angular velocity axis** $( \omega \)$
+- a **point on the joint axis** $( q \)$
+
+we can compute the **linear velocity component** $( v \)$ of the screw axis.
+
+For a **revolute joint**, the linear component is given by:
+
+$$
+v = -\omega \times q
+$$
+
+This represents the instantaneous linear velocity of any point on the rigid body that is rotating about the axis.
+
+#### Example
+
+If the joint rotates about the z-axis:
+
+$$
+\omega =
+\begin{bmatrix}
+0 \\
+0 \\
+1
+\end{bmatrix}
+$$
+
+and the joint axis passes through point:
+
+$$
+q =
+\begin{bmatrix}
+x_0 \\
+y_0 \\
+z_0
+\end{bmatrix}
+$$
+
+then:
+
+$$
+v = -\omega \times q 
+$$
+
+$$
+v =
+\begin{bmatrix}
+0 \\
+0 \\
+1
+\end{bmatrix}
+\times
+\begin{bmatrix}
+x_0 \\
+y_0 \\
+z_0
+\end{bmatrix}
+$$
+
+$$
+v =
+\begin{bmatrix}
+y_0 \\
+-x_0 \\
+0
+\end{bmatrix}
+$$
+
+---
+
+### Full Screw Axis (Twist Vector)
+
+The screw axis for a revolute joint is a **6×1 twist vector** built by stacking $(v\)$ and $(\omega\)$:
+
+$$
+S =
+\begin{bmatrix}
+v \\
+\omega
+\end{bmatrix}
+$$
+
+In component form:
+
+$$
+S =
+\begin{bmatrix}
+v_x \\
+v_y \\
+v_z \\
+\omega_x \\
+\omega_y \\
+\omega_z
+\end{bmatrix}
+$$
+
+This twist fully characterizes the joint’s motion for the Product of Exponentials (PoE) formula.
+
+---
+
+### Full Screw Matrix (4×4 Representation)
+
+Later, we use the **matrix form** of the screw axis, known as the **twist matrix** or the **hat operator**:
+
+$$
+[S] =
+\begin{bmatrix}
+\hat{\omega} & v \\
+0 & 0
+\end{bmatrix}
+$$
+
+where $(\hat{\omega}\)$ is the skew-symmetric matrix:
+
+$$
+\hat{\omega} =
+\begin{bmatrix}
+0 & -\omega_z & \omega_y \\
+\omega_z & 0 & -\omega_x \\
+-\omega_y & \omega_x & 0
+\end{bmatrix}
+$$
+
+This matrix is used in the exponential map:
+
+$$
+e^{[S]\theta}
+$$
+
+to compute rigid-body motion in screw theory.
+
+---
+
+
